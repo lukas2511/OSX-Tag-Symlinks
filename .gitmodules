@@ -1,0 +1,3 @@
+[submodule "bplist-python"]
+	path = bplist-python
+	url = https://github.com/farcaller/bplist-python.git
