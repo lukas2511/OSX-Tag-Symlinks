@@ -113,8 +113,8 @@ for tagname in get_existing_tags():
                 add_project_to_tag(project, tagname)
 
 for tagname, projects in tags.iteritems():
-    set_icon(tagname)
     if not tag_exists(tagname):
         create_tag(tagname)
         for project in projects:
             add_project_to_tag(project, tagname)
+    set_icon(tagname)
