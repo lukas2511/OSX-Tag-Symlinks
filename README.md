@@ -10,4 +10,4 @@ If you create a folder $TARGET/All/.icons, and place .png files with the tag nam
 
 Example:
 
-![Example](example.png))
+![Example](example.png)
