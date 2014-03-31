@@ -14,6 +14,22 @@ def touch(fname, times=None):
     with file(fname, 'a'):
         os.utime(fname, times)
 
+def set_icon(tagname):
+    iconpath = "%s/All/.icons/%s.png" % (TARGET, tagname)
+    rsrcpath = "%s/All/.icons/%s.rsrc" % (TARGET, tagname)
+    tagpath = "%s/%s" % (TARGET, tagname)
+    iconfilepath = "%s/%s/Icon\r" % (TARGET, tagname) 
+    if os.path.exists(iconpath):
+        if not os.path.exists(iconfilepath) or os.path.getmtime(iconpath) > os.path.getmtime(iconfilepath):
+            print("New Icon for %s" % tagname)
+            os.system("sips -i %s > /dev/null" % iconpath)
+            os.system("DeRez -only icns %s > %s" % (iconpath, rsrcpath))
+            os.system("Rez -append %s -o %s/$'Icon\\r'" % (rsrcpath, tagpath))
+            os.system("SetFile -a C %s" % tagpath)
+            os.system("SetFile -a V %s/$'Icon\\r'" % tagpath)
+    elif os.path.exists(iconfilepath):
+        os.unlink(iconfilepath)
+
 def get_tags(path):
     try:
         attrs = xattr(path)
@@ -47,16 +63,17 @@ def get_projects(tagname):
     projects = []
     for existing_link in existing_links:
         project = os.path.basename(existing_link)
-        projects.append(project)
+        if not project == "Icon\r":
+            projects.append(project)
     return projects
 
 def tag_empty(tagname):
-    return glob("%s/%s/*" % (TARGET, tagname)) == []
+    return get_projects(tagname) == []
 
 def remove_empty_tag(tagname):
     print("Tag '%s' is empty, removing from directory structure" % tagname)
     os.unlink("%s/%s/.istag" % (TARGET, tagname))
-    stupid_apple_files = ['.DS_Store']
+    stupid_apple_files = ['.DS_Store',"Icon\r"]
     for stupid_apple_file in stupid_apple_files:
         if os.path.exists("%s/%s/%s" % (TARGET, tagname, stupid_apple_file)):
             os.unlink("%s/%s/%s" % (TARGET, tagname, stupid_apple_file))
@@ -96,6 +113,7 @@ for tagname in get_existing_tags():
                 add_project_to_tag(project, tagname)
 
 for tagname, projects in tags.iteritems():
+    set_icon(tagname)
     if not tag_exists(tagname):
         create_tag(tagname)
         for project in projects:
